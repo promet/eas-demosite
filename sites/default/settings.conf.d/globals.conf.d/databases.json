@@ -1,0 +1,12 @@
+{
+  "default": {
+    "default": {
+      "username": "default-d7DBA",
+      "password": "default-d7PASS",
+      "database": "default-d7DB",
+      "host": "localhost",
+      "port": "3306",
+      "driver": "mysql"
+    }
+  }
+}

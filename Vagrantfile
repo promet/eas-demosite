@@ -74,9 +74,6 @@ Vagrant.configure("2") do |config|
     chef.add_recipe "drupal::default"
     chef.add_recipe "drupal::node_sites"
     chef.add_recipe "drupal::drush"
-    chef.add_recipe "rvm::default"
-    chef.add_recipe "rvm::vagrant"
-    chef.add_recipe "rvm::system"
     chef.json = chef_json
   end
 end

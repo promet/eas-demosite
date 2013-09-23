@@ -58,13 +58,22 @@ Vagrant.configure("2") do |config|
       :drupal => {
         :sites => {
           "#{project}.dev" => {
+            :owner => "vagrant",
+            :group => "www-data",
             :root => "/var/drupals/#{project}",
-            :doc_root => "/var/drupals/#{project}/www",
+            :doc_root => "www",
             :db => "#{project}DB",
             :db_username => "#{project}DBA",
             :db_password => "#{project}PASS",
             :db_init => true,
           }
+        }
+      },
+      :php => {
+        :install_method => 'source',
+        :version => '5.4.15',
+        :directives => {
+          :memory_limit => '512M',
         }
       }
     }

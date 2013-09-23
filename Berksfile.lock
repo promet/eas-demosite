@@ -1,23 +1,14 @@
 {
-  "sha": "2cade94ae68fec2dd89eb4e67e4139d19c2a3e99",
   "sources": {
     "drupal": {
       "locked_version": "0.1.1",
       "git": "git://github.com/promet/drupal_cookbook.git",
-      "ref": "c5a134605b00c0c755966f2fb93dfeae988aea1a"
-    },
-    "rvm": {
-      "locked_version": "0.9.1",
-      "git": "git://github.com/fnichol/chef-rvm.git",
-      "ref": "7038fb8c518d0d7785767de215b1ae463f237973"
+      "ref": "c5f627a632698239a192caa70cc27b5289fa4291"
     },
     "solo-helper": {
       "locked_version": "0.0.1",
       "git": "https://github.com/glennpratt/solo-helper_cookbook.git",
       "ref": "183b6e411c930ac8e7c638ad3cb10cae6a8af8fc"
-    },
-    "apt": {
-      "locked_version": "2.0.0"
     },
     "database": {
       "locked_version": "1.4.0"
@@ -33,6 +24,9 @@
     },
     "postgresql": {
       "locked_version": "3.0.2"
+    },
+    "apt": {
+      "locked_version": "2.0.0"
     },
     "aws": {
       "locked_version": "0.101.2"
@@ -75,12 +69,6 @@
     },
     "hostsfile": {
       "locked_version": "1.0.2"
-    },
-    "java": {
-      "locked_version": "1.11.6"
-    },
-    "chef_gem": {
-      "locked_version": "0.1.0"
     }
   }
 }

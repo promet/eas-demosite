@@ -32,8 +32,6 @@ Vagrant.configure("2") do |config|
   #   auto_correct: true
 
   project = 'default-d7'
-  
-  config.vm.hostname = "promet-#{project}"
 
   config.vm.synced_folder ".", "/var/drupals/#{project}", :nfs => true
 
@@ -67,13 +65,6 @@ Vagrant.configure("2") do |config|
             :db_password => "#{project}PASS",
             :db_init => true,
           }
-        }
-      },
-      :php => {
-        :install_method => 'source',
-        :version => '5.4.15',
-        :directives => {
-          :memory_limit => '512M',
         }
       }
     }

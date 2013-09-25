@@ -18,10 +18,10 @@ Vagrant.configure("2") do |config|
   config.vm.provider :virtualbox do |vb|
     vb.customize ["modifyvm", :id, "--memory", 2048]
   end
-  
+
   config.ssh.max_tries = 40
   config.ssh.timeout   = 120
-  
+
   config.omnibus.chef_version = :latest
 
   # Forward a port from the guest to the host, which allows for outside
@@ -32,8 +32,6 @@ Vagrant.configure("2") do |config|
   #   auto_correct: true
 
   project = 'default-d7'
-  
-  config.vm.hostname = "promet-#{project}"
 
   config.vm.synced_folder ".", "/var/drupals/#{project}", :nfs => true
 
@@ -58,14 +56,19 @@ Vagrant.configure("2") do |config|
       :drupal => {
         :sites => {
           "#{project}.dev" => {
+            :owner => "vagrant",
+            :group => "www-data",
             :root => "/var/drupals/#{project}",
-            :doc_root => "/var/drupals/#{project}/www",
+            :doc_root => "www",
             :db => "#{project}DB",
             :db_username => "#{project}DBA",
             :db_password => "#{project}PASS",
             :db_init => true,
           }
         }
+      },
+      :promet_php => {
+        :memory_limit => "128M",
       }
     }
 
@@ -74,6 +77,7 @@ Vagrant.configure("2") do |config|
     chef.add_recipe "drupal::default"
     chef.add_recipe "drupal::node_sites"
     chef.add_recipe "drupal::drush"
+    chef.add_recipe "promet_php::apache2"
     chef.json = chef_json
   end
 end

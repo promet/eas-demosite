@@ -4,7 +4,7 @@ default
 requirements
 ------------
 * [vagrant](http://downloads.vagrantup.com/) >= 1.2.0
-* [berkshelf](http://berkshelf.com/) >= 2.0.0 
+* [berkshelf](http://berkshelf.com/) >= 2.0.0
 * [vagrant-berkshelf plugin](https://github.com/RiotGames/vagrant-berkshelf) >= 1.3.3
 
 Use

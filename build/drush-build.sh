@@ -6,20 +6,20 @@ then
   exit 1
 fi
 env=$1
-
 build_path=$(dirname "$0")
+env_path="$build_path/$env"
 
 # Pass all arguments to drush
 while [ $# -gt 0 ]; do
   drush_flags="$drush_flags"
   shift
 done
-
 drush="drush $drush_flags"
-if [ -e "$build_path/$env/build.sh" ]
+
+if [ -e "$env_path/build.sh" ]
 then
   echo "Running $env build"
-  source "$build_path/$env/build.sh"
+  source "$env_path/build.sh"
 fi
 echo "Disabling all modules we do not need on any environment.";
 $drush dis $(cat $build_path/mods_purge | tr '\n' ' ') -y

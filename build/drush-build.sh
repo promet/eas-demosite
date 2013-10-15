@@ -3,23 +3,11 @@
 if [ -z "$1" ];
 then
   echo "You must supply an environment argument. See README for details.";
-  exit
+  exit 1
 fi
+env=$1
 
-if [ "$1" = "local" ];
-then
-  $(dirname "$0")/local/build-local.sh
-fi
-
-if [ $1 = "dev" ];
-then
- $(dirname "$0")/dev/build-dev.sh
-fi
-
-if [ $1 = "prod" ];
-then
-  $(dirname "$0")/prod/build-prod.sh
-fi
+build_path=$(dirname "$0")
 
 # Pass all arguments to drush
 while [ $# -gt 0 ]; do
@@ -28,8 +16,11 @@ while [ $# -gt 0 ]; do
 done
 
 drush="drush $drush_flags"
-
-build_path=$(dirname "$0")
+if [ -e "$build_path/$env/build.sh" ]
+then
+  echo "Running $env build"
+  source "$build_path/$env/build.sh"
+fi
 echo "Disabling all modules we do not need on any environment.";
 $drush dis $(cat $build_path/mods_purge | tr '\n' ' ') -y
 echo "Uninstalling modules we do not need on any environment.";

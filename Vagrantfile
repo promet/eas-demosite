@@ -1,7 +1,6 @@
 Vagrant.configure("2") do |config|
   # The path to the Berksfile to use with Vagrant Berkshelf
   config.berkshelf.enabled = true
-  config.berkshelf.berksfile_path = "./Berksfile"
   # An array of symbols representing groups of cookbook described in the Vagrantfile
   # to skip installing and copying to Vagrant's shelf.
   # config.berkshelf.only = []
@@ -19,9 +18,6 @@ Vagrant.configure("2") do |config|
     vb.customize ["modifyvm", :id, "--memory", 2048]
   end
 
-  config.ssh.max_tries = 40
-  config.ssh.timeout   = 120
-
   config.omnibus.chef_version = :latest
 
   # Forward a port from the guest to the host, which allows for outside
@@ -35,7 +31,13 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder ".", "/var/drupals/#{project}", :nfs => true
 
-    chef_json = {
+  config.vm.provision :chef_solo do |chef|
+    chef.add_recipe "solo-helper"
+    chef.add_recipe "drupal::default"
+    chef.add_recipe "drupal::node_sites"
+    chef.add_recipe "drupal::drush"
+    chef.add_recipe "promet_php::apache2"
+    chef.json = {
       :mysql => {
         :server_root_password => 'rootpass',
         :server_debian_password => 'debpass',
@@ -60,10 +62,10 @@ Vagrant.configure("2") do |config|
             :group => "www-data",
             :root => "/var/drupals/#{project}",
             :doc_root => "www",
-            :db => "#{project}DB",
-            :db_username => "#{project}DBA",
-            :db_password => "#{project}PASS",
-            :db_init => true,
+              :db => "#{project}DB",
+              :db_username => "#{project}DBA",
+              :db_password => "#{project}PASS",
+              :db_init => true,
           }
         }
       },
@@ -71,13 +73,5 @@ Vagrant.configure("2") do |config|
         :memory_limit => "128M",
       }
     }
-
-    config.vm.provision :chef_solo do |chef|
-    chef.add_recipe "solo-helper"
-    chef.add_recipe "drupal::default"
-    chef.add_recipe "drupal::node_sites"
-    chef.add_recipe "drupal::drush"
-    chef.add_recipe "promet_php::apache2"
-    chef.json = chef_json
   end
 end

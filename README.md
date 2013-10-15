@@ -1,5 +1,5 @@
 default
-=====
+=======
 
 requirements
 ------------
@@ -10,11 +10,15 @@ requirements
 Use
 ---
 
-The build script `drush-build.sh` takes one of three arguments:
+The build script `drush-build.sh` takes an environment argument which can be
+one of the following:
 
 * local
 * dev
 * prod
+
+additional environments can be added by simply adding a directory for it with
+a build.sh in it.
 
 Global
 ------
@@ -25,12 +29,12 @@ For all environments, the build script will:
 
 Local
 -----
-This script is intended to create a local installation with a copy of the database and files. Use `local_mods_enable` to enable only modules needed for local development.
+This script is intended to create a local installation with a copy of the database and files. Use `mods_enable` in the environment directory to enable only modules needed for local development.
 
 Dev
 -----
-This script is intended to run on a development or staging environment. Use `dev_mods_purge` to disbale modules not needed on development or staging.
+This script is intended to run on a development or staging environment. Use `mods_purge` in the environment directory to disable modules not needed on development or staging.
 
 Prod
 -----
-This script is intended to run on a production environment. Use `prod_mods_purge` to disbale modules not needed on development or staging.
+This script is intended to run on a production environment. Use `mods_purge` in the environment directory to disbale modules not needed on development or staging.

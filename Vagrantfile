@@ -62,10 +62,10 @@ Vagrant.configure("2") do |config|
             :group => "www-data",
             :root => "/var/drupals/#{project}",
             :doc_root => "www",
-              :db => "#{project}DB",
-              :db_username => "#{project}DBA",
-              :db_password => "#{project}PASS",
-              :db_init => true,
+            :db => "#{project}DB",
+            :db_username => "#{project}DBA",
+            :db_password => "#{project}PASS",
+            :db_init => true,
           }
         }
       },

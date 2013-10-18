@@ -1,6 +1,4 @@
 #! /usr/bin/env bash
-env_path=$(dirname "$0")
-
 echo "Installing database.";
 $drush si -y --account-pass='drupaladm1n'
 echo "Enabling modules needed for local development.";

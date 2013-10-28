@@ -5,13 +5,16 @@ then
   echo "You must supply an environment argument. See README for details.";
   exit 1
 fi
+
 env=$1
+shift
+
 build_path=$(dirname "$0")
 env_path="$build_path/$env"
 
 # Pass all arguments to drush
 while [ $# -gt 0 ]; do
-  drush_flags="$drush_flags"
+  drush_flags="$drush_flags $1"
   shift
 done
 drush="drush $drush_flags"
@@ -34,6 +37,6 @@ $drush fra -y
 echo "Running any updates.";
 $drush updb -y
 echo "Setting the theme default.";
-$drush scr $(dirname "$0")/scripts/default_set_theme.php
+$drush scr $build_path/scripts/default_set_theme.php
 echo "Clearing caches one last time.";
 $drush cc all -y

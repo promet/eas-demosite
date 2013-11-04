@@ -6,6 +6,7 @@ requirements
 * [vagrant](http://downloads.vagrantup.com/) >= 1.2.0
 * [berkshelf](http://berkshelf.com/) >= 2.0.0
 * [vagrant-berkshelf plugin](https://github.com/RiotGames/vagrant-berkshelf) >= 1.3.3
+* [vagrant-omnibus plugin](https://github.com/schisamo/vagrant-omnibus) >= 1.1.0
 
 Use
 ---

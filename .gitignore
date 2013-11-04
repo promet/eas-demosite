@@ -7,7 +7,6 @@
 
 # Ignore build files
 build/*/ref_db
-build/*/ref_db/files*
 build/*/ref_db/*.sql*
 
 */.DS_Store

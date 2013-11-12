@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   #   auto_correct: true
 
   project = 'default-d7'
-
+  config.vm.host_name = "#{project}.dev"
   config.vm.synced_folder ".", "/var/drupals/#{project}", :nfs => true
 
   config.vm.provision :chef_solo do |chef|

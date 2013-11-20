@@ -9,8 +9,8 @@ Vagrant.configure("2") do |config|
   # to skip installing and copying to Vagrant's shelf.
   # config.berkshelf.except = []
 
-  config.vm.box = "squeeze"
-  config.vm.box_url = "https://s3.amazonaws.com/wa.milton.aws.bucket01/sqeeze.box"
+  config.vm.box = "wheezy"
+  config.vm.box_url = "https://opscode-vm-bento.s3.amazonaws.com/vagrant/opscode_debian-7.1.0_provisionerless.box"
 
   config.vm.network :private_network, ip: "10.33.36.11"
 
@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   #   auto_correct: true
 
   project = 'default-d7'
-
+  config.vm.host_name = "#{project}.dev"
   config.vm.synced_folder ".", "/var/drupals/#{project}", :nfs => true
 
   config.vm.provision :chef_solo do |chef|

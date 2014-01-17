@@ -8,6 +8,15 @@ requirements
 * [vagrant-berkshelf plugin](https://github.com/RiotGames/vagrant-berkshelf) >= 1.3.3
 * [vagrant-omnibus plugin](https://github.com/schisamo/vagrant-omnibus) >= 1.1.0
 
+Building
+---
+
+* Run `vagrant up` to build the environment.
+* ssh in with `vagrant ssh`
+* Navigate to `/var/www/sites/PROJECT`.
+* cp `env.json` from `/var/drupal/default/` to next to your `settings.php`.
+* From inside your drupal root, run `../build/drush-build.sh local` and party.
+
 Use
 ---
 

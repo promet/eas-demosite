@@ -4,6 +4,8 @@ screenshot = screenshot.png
 engine = phptemplate
 core = 7.x
 
+; Regions
+regions[branding]       = Branding
 regions[header]         = Header
 regions[navigation]     = Navigation
 regions[highlighted]    = Highlighted
@@ -13,12 +15,13 @@ regions[sidebar_first]  = First Sidebar
 regions[sidebar_second] = Second Sidebar
 regions[footer]         = Footer
 
+; Plugins
 plugins[panels][layouts] = panels/layouts
 plugins[panels][styles] = panels/styles
 
-; Information added by drupal.org packaging script on 2013-08-17
-version = "7.x-4.0-beta7"
+; Information added by Drupal.org packaging script on 2014-01-21
+version = "7.x-4.2"
 core = "7.x"
 project = "omega"
-datestamp = "1376780189"
+datestamp = "1390302888"
 

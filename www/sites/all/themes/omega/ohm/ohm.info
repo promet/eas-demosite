@@ -1,5 +1,5 @@
 name = Ohm
-description = Omega based demonstration theme. Serves as a best-practice reference for the Omega documentation.
+description = Omega based demonstration theme. Serves as a best-practice reference for the Omega documentation. Ohm will be constantly updated as best practice evolves so shouldn't be used in production.
 base theme = omega
 screenshot = screenshot.png
 engine = phptemplate
@@ -9,8 +9,10 @@ core = 7.x
 stylesheets[all][] = css/ohm.normalize.css
 stylesheets[all][] = css/ohm.hacks.css
 stylesheets[all][] = css/ohm.styles.css
+stylesheets[all][] = css/ohm.no-query.css
 
 ; Regions
+regions[branding]       = Branding
 regions[navigation]     = Navigation bar
 regions[header]         = Header
 regions[hero]           = Hero
@@ -20,6 +22,9 @@ regions[content]        = Content
 regions[sidebar_first]  = First sidebar
 regions[sidebar_second] = Second sidebar
 regions[footer]         = Footer
+
+; Layout Settings
+layout[hero][stylesheets][all][] = css/layouts/hero/ohm-hero.layout.css
 
 ; Settings
 settings[toggle_logo] = 1
@@ -41,7 +46,7 @@ settings[favicon_upload] = ''
 settings[omega_toggle_extension_assets] = 1
 settings[omega_libraries][selectivizr][status] = 0
 settings[omega_libraries][respond][status] = 0
-settings[omega_libraries][css3pie][status] = 0
+settings[omega_libraries][pie][status] = 0
 settings[omega_libraries][html5shiv][status] = 1
 settings[omega_libraries][messages][status] = 1
 settings[omega_toggle_extension_compatibility] = 1
@@ -76,9 +81,9 @@ settings[omega_demo_regions_list][sidebar_first] = sidebar_first
 settings[omega_demo_regions_list][sidebar_second] = sidebar_second
 settings[omega_demo_regions_list][footer] = footer
 
-; Information added by drupal.org packaging script on 2013-08-17
-version = "7.x-4.0-beta7"
+; Information added by Drupal.org packaging script on 2014-01-21
+version = "7.x-4.2"
 core = "7.x"
 project = "omega"
-datestamp = "1376780189"
+datestamp = "1390302888"
 

@@ -8,52 +8,10 @@
 require_once dirname(__FILE__) . '/includes/omega.inc';
 require_once dirname(__FILE__) . '/includes/scripts.inc';
 
-if (drupal_get_bootstrap_phase() >= DRUPAL_BOOTSTRAP_DATABASE && $GLOBALS['theme'] === $GLOBALS['theme_key'] && ($GLOBALS['theme'] == 'omega' || (!empty($GLOBALS['base_theme_info']) && $GLOBALS['base_theme_info'][0]->name == 'omega'))) {
-  // Managing debugging (flood) messages and a few development tasks. This also
-  // lives outside of any function declaration to make sure that the code is
-  // executed before any theme hooks.
-  if (omega_extension_enabled('development') && user_access('administer site configuration')) {
-    if (variable_get('theme_' . $GLOBALS['theme'] . '_settings') && flood_is_allowed('omega_' . $GLOBALS['theme'] . '_theme_settings_warning', 3)) {
-      // Alert the user that the theme settings are served from a variable.
-      flood_register_event('omega_' . $GLOBALS['theme'] . '_theme_settings_warning');
-      drupal_set_message(t('The settings for this theme are currently served from a variable. You might want to export them to your .info file.'), 'warning');
-    }
-
-    // Rebuild the theme registry / aggregates on every page load if the
-    // development extension is enabled and configured to do so.
-    if (omega_theme_get_setting('omega_rebuild_theme_registry', FALSE)) {
-      // Rebuild the theme data.
-      system_rebuild_theme_data();
-      // Rebuild the theme registry.
-      drupal_theme_rebuild();
-
-      if (flood_is_allowed('omega_' . $GLOBALS['theme'] . '_rebuild_registry_warning', 3)) {
-        // Alert the user that the theme registry is being rebuilt on every
-        // request.
-        flood_register_event('omega_' . $GLOBALS['theme'] . '_rebuild_registry_warning');
-        drupal_set_message(t('The theme registry is being rebuilt on every request. Remember to <a href="!url">turn off</a> this feature on production websites.', array("!url" => url('admin/appearance/settings/' . $GLOBALS['theme']))), 'warning');
-      }
-    }
-
-    if (omega_theme_get_setting('omega_rebuild_aggregates', FALSE) && variable_get('preprocess_css', FALSE) && (!defined('MAINTENANCE_MODE') || MAINTENANCE_MODE != 'update')) {
-      foreach (array('css', 'js') as $type) {
-        variable_del('drupal_' . $type . '_cache_files');
-
-        foreach (file_scan_directory('public://' . $type . '', '/.*/') as $file) {
-          // Delete files that are older than 20 seconds.
-          if (REQUEST_TIME - filemtime($file->uri) > 20) {
-            file_unmanaged_delete($file->uri);
-          }
-        };
-      }
-
-      if (flood_is_allowed('omega_' . $GLOBALS['theme'] . '_rebuild_aggregates_warning', 3)) {
-        // Alert the user that the theme registry is being rebuilt on every
-        // request.
-        flood_register_event('omega_' . $GLOBALS['theme'] . '_rebuild_aggregates_warning');
-        drupal_set_message(t('The CSS and JS aggregates are being rebuilt on every request. Remember to <a href="!url">turn off</a> this feature on production websites.', array("!url" => url('admin/appearance/settings/' . $GLOBALS['theme']))), 'warning');
-      }
-    }
+// Include the main extension file for every enabled extension.
+foreach (omega_extensions() as $extension => $info) {
+  if (omega_extension_enabled($extension) && ($file = $info['path'] . '/' . $extension . '.inc') && is_file($file)) {
+    require_once $file;
   }
 }
 
@@ -303,11 +261,33 @@ function omega_css_alter(&$css) {
   }
 
   // Exclude CSS files as declared in the theme settings.
-  if (omega_extension_enabled('assets') && $regex = omega_theme_get_setting('omega_css_exclude_regex')) {
-    // Make sure that RTL styles are excluded as well when a file name has been
-    // specified with it's full .css file extension.
-    $regex = preg_replace('/\\\.css$/', '(\.css|-rtl\.css)', $regex);
-    omega_exclude_assets($css, $regex);
+  if (omega_extension_enabled('assets')) {
+    omega_css_js_alter($css, 'css');
+  }
+
+  // Allow themes to specify no-query fallback CSS files.
+  require_once "$omega/includes/assets.inc";
+  $mapping = omega_assets_generate_mapping($css);
+  foreach (preg_grep('/\.no-query(-rtl)?\.css$/', $mapping) as $key => $fallback) {
+    // Don't modify browser settings if they have already been modified.
+    if ($css[$key]['browsers']['IE'] === TRUE && $css[$key]['browsers']['!IE'] === TRUE) {
+      $css[$key]['browsers'] = array(
+        '!IE' => FALSE,
+        'IE' => 'lte IE 8',
+      );
+
+      // Make sure that we don't break any CSS aggregation groups.
+      $css[$key]['weight'] += 100;
+    }
+  }
+
+  // When using omega_livereload force CSS to be added with link tags, rather
+  // than @import. This prevents Chrome from crashing when using the inspector
+  // while livereload is enabled.
+  if (omega_extension_enabled('development') && omega_theme_get_setting('omega_livereload', TRUE)) {
+    foreach ($css as $key => $value) {
+      $css[$key]['preprocess'] = FALSE;
+    }
   }
 }
 
@@ -315,8 +295,16 @@ function omega_css_alter(&$css) {
  * Implements hook_js_alter().
  */
 function omega_js_alter(&$js) {
+  // In some cases the element info array might get built before the theme
+  // system is fully bootstrapped. In this case, omega_element_info_alter() will
+  // never get called causing custom Omega pre-rendering of scripts to be
+  // skipped which results in no JavaScript being output.
+  if (!element_info('scripts')) {
+    drupal_static_reset('element_info');
+  }
+
   // If the AJAX.js isn't included... we don't need the ajaxPageState settings!
-  if ( ! isset($js['misc/ajax.js']) && isset($js['settings']['data'])) {
+  if (!isset($js['misc/ajax.js']) && isset($js['settings']['data'])) {
     foreach ($js['settings']['data'] as $delta => $setting) {
       if (array_key_exists('ajaxPageState', $setting)) {
         if (count($setting) == 1) {
@@ -333,16 +321,23 @@ function omega_js_alter(&$js) {
     return;
   }
 
-  if ($regex = omega_theme_get_setting('omega_js_exclude_regex')) {
-    omega_exclude_assets($js, $regex);
-  }
+  omega_css_js_alter($js, 'js');
 
   // Move the specified JavaScript files to the footer.
   if (($footer = omega_theme_get_setting('omega_js_footer')) && is_array($footer)) {
-    $regex = omega_generate_path_regex($footer);
-    $mapping = omega_generate_asset_mapping($js);
+    require_once drupal_get_path('theme', 'omega') . '/includes/assets.inc';
+    if (!$cache = cache_get("omega:{$GLOBALS['theme_key']}:footer")) {
+      // Explode and trim the values for the footer rules.
+      $steps = omega_assets_regex_steps($footer);
 
-    foreach (preg_grep($regex, $mapping) as $key => $match) {
+      cache_set("omega:{$GLOBALS['theme_key']}:footer", $steps, 'cache', CACHE_TEMPORARY);
+    }
+    else {
+      $steps = $cache->data;
+    }
+
+    $mapping = omega_assets_generate_mapping($js);
+    foreach (omega_assets_regex_execute($mapping, $steps) as $key => $match) {
       $js[$key]['scope'] = 'footer';
     }
   }
@@ -367,17 +362,36 @@ function omega_form_field_ui_display_overview_form_alter(&$form, &$form_state, $
 /**
  * Implements hook_theme().
  */
-function omega_theme() {
+function omega_theme($cache, &$type, $theme, $path) {
+  // This is actually totally evil but it's the only way to force Drupal into
+  // looking up (pre-)process hooks as if this was a module. In all seriousness
+  // this is actually fixing something that I consider a Drupal core bug as it
+  // prevents sub-themes from altering the behavior of a base-theme provided
+  // theme hook as they are not allowed to provide (pre-)process hooks for it.
+  $type = 'module';
+
   $info['omega_chrome'] = array(
     'render element' => 'element',
   );
 
-  $info['omega_layout'] = array(
+  $info['omega_page_layout'] = array(
     'base hook' => 'page',
   );
 
+  $info = array_merge($info, _omega_theme_layouts());
+
+  return $info;
+}
+
+/**
+ * Helper function for registering theme hooks for Omega layouts.
+ */
+function _omega_theme_layouts() {
+  $info = array();
+
   foreach (omega_layouts_info() as $layout) {
-    $info[$layout['template']] = array(
+    $hook = str_replace('-', '_', $layout['template']);
+    $info[$hook] = array(
       'template' => $layout['template'],
       'path' => $layout['path'],
     );
@@ -390,18 +404,31 @@ function omega_theme() {
  * Implements hook_theme_registry_alter().
  */
 function omega_theme_registry_alter(&$registry) {
+  require_once dirname(__FILE__) . '/includes/registry.inc';
+
   // Fix for integration with the theme developer module.
   if (module_exists('devel_themer')) {
     foreach ($registry as $hook => $data) {
-      $registry[$hook] = $data['original'];
+      if (isset($data['original'])) {
+        $registry[$hook] = $data['original'];
+      }
     }
   }
 
-  $mapping = array(
-    'preprocess' => 'preprocess functions',
-    'process' => 'process functions',
-    'theme' => 'function',
-  );
+  // For maintainability reasons, some of this code lives in a class.
+  $handler = new OmegaThemeRegistryHandler($registry, $GLOBALS['theme']);
+
+  // Allows themers to split preprocess / process / theme code across separate
+  // files to keep the main template.php file clean. This is really fast because
+  // it uses the theme registry to cache the paths to the files that it finds.
+  $trail = omega_theme_trail($GLOBALS['theme']);
+  foreach ($trail as $theme => $name) {
+    $handler->registerHooks($theme);
+    $handler->registerThemeFunctions($theme, $trail);
+  }
+
+  // Override the default 'template_process_html' hook implementation.
+  $handler->overrideHook('html', 'template_process_html', 'omega_template_process_html_override');
 
   // We prefer the attributes array instead of the plain classes array used by
   // many core and contrib modules. In Drupal 8, we are going to convert all
@@ -409,135 +436,27 @@ function omega_theme_registry_alter(&$registry) {
   // synchronize our attributes array with the classes array to encourage
   // themers to use it.
   foreach ($registry as $hook => $item) {
-    if (empty($item['base hook']) && empty($item[$mapping['theme']])) {
-      if (($index = array_search('template_preprocess', $registry[$hook][$mapping['preprocess']], TRUE)) !== FALSE) {
+    if (empty($item['base hook']) && empty($item['function'])) {
+      if (($index = array_search('template_preprocess', $registry[$hook]['preprocess functions'], TRUE)) !== FALSE) {
         // Make sure that omega_initialize_attributes() is invoked first.
-        array_unshift($registry[$hook][$mapping['process']], 'omega_cleanup_attributes');
+        array_unshift($registry[$hook]['process functions'], 'omega_cleanup_attributes');
         // Add omega_cleanup_attributes() right after template_preprocess().
-        array_splice($registry[$hook][$mapping['preprocess']], $index + 1, 0, 'omega_initialize_attributes');
+        array_splice($registry[$hook]['preprocess functions'], $index + 1, 0, 'omega_initialize_attributes');
       }
     }
   }
 
-  // Allow themers to split preprocess / process / theme code across separate
-  // files to keep the main template.php file clean. This is really fast because
-  // it uses the theme registry to cache the paths to the files that it finds.
-  $trail = omega_theme_trail();
+  // Add a preprocessor for initializing default variables to every layout.
+  foreach (array_keys(_omega_theme_layouts()) as $hook) {
+    $registry[$hook]['preprocess functions'] = array_diff($registry[$hook]['preprocess functions'], array('template_preprocess'));
 
-  // Keep track of theme function include files that are not directly loaded
-  // into the theme registry. This is the case for previously unknown theme
-  // hook suggestion implementations.
-  foreach ($trail as $theme => $name) {
-    // Remove the current element from the trail so we only iterate over
-    // higher level themes during subsequent checks.
-    unset($trail[$theme]);
-
-    foreach ($mapping as $type => $map) {
-      $path = drupal_get_path('theme', $theme);
-      // Only look for files that match the 'something.preprocess.inc' pattern.
-      $mask = '/.' . $type . '.inc$/';
-      // This is the length of the suffix (e.g. '.preprocess') of the basename
-      // of a file.
-      $strlen = -(strlen($type) + 1);
-
-      // Recursively scan the folder for the current step for (pre-)process
-      // files and write them to the registry.
-      foreach (file_scan_directory($path . '/' . $type, $mask) as $item) {
-        $hook = strtr(substr($item->name, 0, $strlen), '-', '_');
-
-        // If there is no hook with that name, continue. This does not apply to
-        // theme functions because if we want to support theme hook suggestions
-        // in .theme.inc files that have not previously been declared we need to
-        // run the full discovery for theme functions.
-        if (!array_key_exists($hook, $registry) && ($type !== 'theme' || strpos($hook, '__') === FALSE)) {
-          continue;
-        }
-
-        // Skip theme function overrides if they are already declared 'final'.
-        if ($type === 'theme' && !empty($registry[$hook]['final'])) {
-          continue;
-        }
-
-        // Name of the function (theme hook or theme function).
-        $callback = $type == 'theme' ? $theme . '_' . $hook : $theme . '_' . $type . '_' . $hook;
-
-        // Furthermore, we don't want to re-override sub-theme template file or
-        // theme function overrides with theme functions from include files
-        // defined in a lower-level base theme. Without this check this would
-        // happen because our alter hook runs after the template file and theme
-        // function discovery logic from Drupal core (theme engine).
-        if ($type == 'theme' && $theme != $GLOBALS['theme'] && in_array($registry[$hook]['type'], array('base_theme_engine', 'theme_engine'))) {
-          // Now we know that there is a template file or theme function
-          // override that has been defined somewhere in the theme trail. Now
-          // we need to check if the declaration of that function or template
-          // file lives further down the theme trail than the function we are
-          // currently looking it.
-          foreach ($trail as $subkey => $subtheme) {
-            if ($registry[$hook]['theme path'] == drupal_get_path('theme', $subkey)) {
-              continue(2);
-            }
-          }
-        }
-
-        // Load the file once so we can check if the function exists.
-        require_once $item->uri;
-
-        // Proceed if the callback doesn't exist.
-        if (!function_exists($callback)) {
-          continue;
-        }
-
-        // If we got this far and the following if() statement evaluates to true
-        // then that means that the theme function override that is currently
-        // being processed is a previously unknown theme hook suggestion.
-        if ($type == 'theme' && !array_key_exists($hook, $registry) && $separator = strpos($hook, '__')) {
-          $suggestion = $hook;
-          $hook = substr($hook, 0, $separator);
-
-          if (!isset($registry[$hook])) {
-            // Bail out here if the base hook does not exist.
-            continue;
-          }
-
-          // Register the theme hook suggestion.
-          $arg_name = isset($registry[$hook]['variables']) ? 'variables' : 'render element';
-          $registry[$suggestion] = array(
-            $map => $callback,
-            $arg_name => $registry[$hook][$arg_name],
-            'base hook' => $hook,
-          );
-        }
-        elseif ($type == 'theme') {
-          // Inject our theme function. We will leave any potential 'template'
-          // declarations in the registry as they don't hurt us anyways
-          // because drupal gives precedence to theme functions.
-          $registry[$hook][$map] = $callback;
-        }
-        else {
-          // Append the included preprocess hook to the array of functions.
-          $registry[$hook][$map][] = $callback;
-        }
-
-        // By adding this file to the 'includes' array we make sure that it is
-        // available when the hook is executed.
-        $registry[$hook]['includes'][] = $item->uri;
-      }
-    }
+    array_unshift($registry[$hook]['process functions'], '_omega_preprocess_default_layout_variables');
   }
 
-  // Include the main extension file for every enabled extension. This is
-  // required for the next step (allowing extensions to register hooks in the
-  // theme registry).
+  // Allow extensions to register hooks in the theme registry.
   foreach (omega_extensions() as $extension => $info) {
-    // Load all the implementations for this extensions and invoke the according
-    // hooks.
+    // Invoke the according hooks for every enabled extension.
     if (omega_extension_enabled($extension)) {
-      $file = $info['path'] . '/' . $extension . '.inc';
-
-      if (is_file($file)) {
-        require_once $file;
-      }
-
       // Give every enabled extension a chance to alter the theme registry.
       $hook = $info['theme'] . '_extension_' . $extension . '_theme_registry_alter';
 
@@ -547,30 +466,8 @@ function omega_theme_registry_alter(&$registry) {
     }
   }
 
-  // Override pre-process and process functions for cases where we want to take
-  // a completely different approach than what core does by default. In some
-  // cases this is much more practical than altering or undoing things that were
-  // added or changed in a previous hook.
-  $overrides = array(
-    'html' => array(
-      'process' => array(
-        'template_process_html' => 'omega_template_process_html_override',
-      ),
-    ),
-  );
-
-  foreach ($overrides as $hook => $types) {
-    foreach ($types as $type => $overrides) {
-      foreach ($overrides as $original => $override) {
-        if (($index = array_search($original, $registry[$hook][$mapping[$type]], TRUE)) !== FALSE) {
-          array_splice($registry[$hook][$mapping[$type]], $index, 1, $override);
-        }
-      }
-    }
-  }
-
   // Fix for integration with the theme developer module.
-  if (module_exists('devel_themer')) {
+  if (module_exists('devel_themer') && function_exists('devel_themer_theme_registry_alter')) {
     devel_themer_theme_registry_alter($registry);
   }
 }
@@ -579,6 +476,9 @@ function omega_theme_registry_alter(&$registry) {
  * Initializes the attributes array from the classes array.
  */
 function omega_initialize_attributes(&$variables) {
+  if (!empty($variables['attributes_array']['class'])) {
+    $variables['classes_array'] = array_unique(array_merge($variables['classes_array'], $variables['attributes_array']['class']));
+  }
   $variables['attributes_array']['class'] = &$variables['classes_array'];
 }
 
@@ -628,9 +528,9 @@ function omega_block_list_alter(&$blocks) {
     // Check if drupal_alter() was invoked from _block_load_blocks(). This is
     // required as we do not want to interfere with contrib modules like ctools.
     if ($callers['2']['function'] === '_block_load_blocks') {
-      // In case we are currently serving a Omega layout we have to make sure that
-      // we don't process blocks that will never be shown because the active layout
-      // does not even have a region for them.
+      // In case we are currently serving a Omega layout we have to make sure
+      // that we don't process blocks that will never be shown because the
+      // active layout does not even have a region for them.
       foreach ($blocks as $id => $block) {
         if (!array_key_exists($block->region, $layout['info']['regions'])) {
           unset($blocks[$id]);
@@ -679,7 +579,7 @@ function omega_override_overlay_deliver_empty_page() {
 function omega_page_alter(&$page) {
   // Place dummy blocks in each region if the 'demo regions' setting is active
   // to force regions to be rendered.
-  if (omega_extension_enabled('development') && omega_theme_get_setting ('omega_demo_regions', TRUE) && user_access('administer site configuration')) {
+  if (omega_extension_enabled('development') && omega_theme_get_setting('omega_demo_regions', TRUE) && user_access('administer site configuration')) {
     $item = menu_get_item();
 
     // Don't interfere with the 'Demonstrate block regions' page.
@@ -722,13 +622,15 @@ function omega_page_alter(&$page) {
  */
 function omega_html_head_alter(&$head) {
   // Simplify the meta tag for character encoding.
-  $head['system_meta_content_type']['#attributes'] = array('charset' => str_replace('text/html; charset=', '', $head['system_meta_content_type']['#attributes']['content']));
+  $head['system_meta_content_type']['#attributes'] = array(
+    'charset' => str_replace('text/html; charset=', '', $head['system_meta_content_type']['#attributes']['content']),
+  );
 }
 
 /**
  * Implements hook_omega_theme_libraries_info().
  */
-function omega_omega_theme_libraries_info($theme) {
+function omega_omega_theme_libraries_info() {
   $libraries['selectivizr'] = array(
     'name' => t('Selectivizr'),
     'description' => t('Selectivizr is a JavaScript utility that emulates CSS3 pseudo-classes and attribute selectors in Internet Explorer 6-8. Simply include the script in your pages and selectivizr will do the rest.'),
@@ -737,7 +639,7 @@ function omega_omega_theme_libraries_info($theme) {
     'package' => t('Polyfills'),
     'files' => array(
       'js' => array(
-        omega_theme_trail_file('libraries/selectivizr/selectivizr.min.js') => array(
+        'selectivizr.min.js' => array(
           'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
           'weight' => 110,
           'every_page' => TRUE,
@@ -750,7 +652,7 @@ function omega_omega_theme_libraries_info($theme) {
         'description' => t('During development it might be useful to include the source files instead of the minified version.'),
         'files' => array(
           'js' => array(
-            omega_theme_trail_file('libraries/selectivizr/selectivizr.js') => array(
+            'selectivizr.js' => array(
               'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
               'weight' => 110,
               'every_page' => TRUE,
@@ -767,10 +669,10 @@ function omega_omega_theme_libraries_info($theme) {
     'vendor' => 'Scott Jehl',
     'vendor url' => 'http://scottjehl.com/',
     'package' => t('Polyfills'),
-    'callbacks' => array('omega_extension_library_requirements_css_aggregation'),
+    'callbacks' => array('omega_extension_assets_requirements_css_aggregation'),
     'files' => array(
       'js' => array(
-        omega_theme_trail_file('libraries/respond/respond.min.js') => array(
+        'respond.min.js' => array(
           'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
           'weight' => 120,
           'every_page' => TRUE,
@@ -783,7 +685,7 @@ function omega_omega_theme_libraries_info($theme) {
         'description' => t('During development it might be useful to include the source files instead of the minified version.'),
         'files' => array(
           'js' => array(
-            omega_theme_trail_file('libraries/respond/respond.js') => array(
+            'respond.js' => array(
               'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
               'weight' => 120,
               'every_page' => TRUE,
@@ -794,13 +696,14 @@ function omega_omega_theme_libraries_info($theme) {
     ),
   );
 
-  $libraries['css3pie'] = array(
+  $libraries['pie'] = array(
     'name' => t('CSS3 PIE'),
     'description' => t('PIE makes Internet Explorer 6-9 capable of rendering several of the most useful CSS3 decoration features.'),
     'vendor' => 'Keith Clark',
     'vendor url' => 'http://css3pie.com/',
     'options form' => 'omega_library_pie_options_form',
     'package' => t('Polyfills'),
+    'callbacks' => array('omega_extension_assets_load_pie_selectors'),
     'files' => array(),
     'variants' => array(
       'js' => array(
@@ -808,7 +711,7 @@ function omega_omega_theme_libraries_info($theme) {
         'description' => t('While the .htc behavior is still the recommended approach for most users, the JS version has some advantages that may be a better fit for some users.'),
         'files' => array(
           'js' => array(
-            omega_theme_trail_file('libraries/pie/PIE.js') => array(
+            'PIE.js' => array(
               'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
               'weight' => 100,
               'every_page' => TRUE,
@@ -819,37 +722,6 @@ function omega_omega_theme_libraries_info($theme) {
     ),
   );
 
-  $settings = omega_theme_get_setting('omega_libraries');
-  if (!empty($settings['css3pie']['selectors'])) {
-    // Add the generated .css file to the corresponding variant.
-    $destination = file_create_url('public://omega/' . $theme );
-    $destination = substr($destination, strlen($GLOBALS['base_url']) + 1);
-    file_prepare_directory($destination, FILE_CREATE_DIRECTORY);
-
-    // Save the generated CSS in the public file system.
-    $file = $destination . '/pie-selectors.css';
-    $htc = base_path() . omega_theme_trail_file('libraries/pie/PIE.htc');
-    $contents = implode(",", $settings['css3pie']['selectors']) . "{behavior:url($htc)}";
-    file_unmanaged_save_data($contents, $file, FILE_EXISTS_REPLACE);
-
-    $libraries['css3pie']['files']['css'][$file] = array(
-      'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
-      'weight' => 100,
-      'every_page' => TRUE,
-    );
-
-    // Save the generated JS in the public file system.
-    $file = $destination . '/pie-selectors.js';
-    $contents = '$(function(){Drupal.behaviors.css3pie={attach:function(context,settings){if(window.PIE){$("' . implode(",", $settings['css3pie']['selectors']) . '").each(function(){PIE.attach(this)})}}}})(jQuery);';
-    file_unmanaged_save_data($contents, $file, FILE_EXISTS_REPLACE);
-
-    $libraries['css3pie']['variants']['js']['files']['js'][$file] = array(
-      'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
-      'weight' => 100,
-      'every_page' => TRUE,
-    );
-  }
-
   $libraries['html5shiv'] = array(
     'name' => t('HTML5 Shiv'),
     'description' => t('This script is the defacto way to enable use of HTML5 sectioning elements in legacy Internet Explorer, as well as default HTML5 styling in Internet Explorer 6 - 9, Safari 4.x (and iPhone 3.x), and Firefox 3.x.'),
@@ -857,12 +729,12 @@ function omega_omega_theme_libraries_info($theme) {
     'package' => t('Polyfills'),
     'files' => array(
       'js' => array(
-        omega_theme_trail_file('libraries/html5shiv/html5shiv.js') => array(
+        'html5shiv.min.js' => array(
           'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
           'weight' => 100,
           'every_page' => TRUE,
         ),
-        omega_theme_trail_file('libraries/html5shiv/html5shiv-printshiv.js') => array(
+        'html5shiv-printshiv.min.js' => array(
           'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
           'weight' => 100,
           'every_page' => TRUE,
@@ -875,12 +747,12 @@ function omega_omega_theme_libraries_info($theme) {
         'description' => t('During development it might be useful to include the source files instead of the minified version.'),
         'files' => array(
           'js' => array(
-            omega_theme_trail_file('libraries/html5shiv/html5shiv.min.js') => array(
+            'html5shiv.js' => array(
               'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
               'weight' => 100,
               'every_page' => TRUE,
             ),
-            omega_theme_trail_file('libraries/html5shiv/html5shiv-printshiv.min.js') => array(
+            'html5shiv-printshiv.js' => array(
               'browsers' => array('IE' => '(gte IE 6)&(lte IE 8)', '!IE' => FALSE),
               'weight' => 100,
               'every_page' => TRUE,
@@ -891,48 +763,66 @@ function omega_omega_theme_libraries_info($theme) {
     ),
   );
 
-  $libraries['messages'] = array(
-    'name' => t('Discardable messages'),
-    'description' => t("Adds a 'close' button to each message."),
-    'package' => t('Goodies'),
-    'files' => array(
-      'js' => array(
-        omega_theme_trail_file('js/omega.messages.min.js') => array(
-          'weight' => -100,
-          'every_page' => TRUE,
-        ),
-      ),
-      'css' => array(
-        omega_theme_trail_file('css/omega.messages.css') => array(
-          'weight' => -100,
-          'every_page' => TRUE,
-        ),
-      ),
-    ),
-  );
-
   return $libraries;
+}
+
+/**
+ * Omega layout preprocessor for initializing default variables.
+ */
+function _omega_preprocess_default_layout_variables(&$variables, $hook) {
+  // Invoke template_preprocess() manually but don't override the classes.
+  $classes = isset($variables['classes_array']) ? $variables['classes_array'] : array();
+  template_preprocess($variables, $hook);
+  $variables['classes_array'] = $classes;
+
+  $layout = $variables['omega_layout'];
+  $variables['attributes_array']['class'][] = 'l-page';
+
+  // Add information about the rendered sidebars, but only if the layout
+  // actually supports sidebars.
+  if ($matches = preg_grep('/^sidebar/', array_keys($layout['info']['regions']))) {
+    $count = count(array_intersect($matches, array_keys(array_filter($variables['page']))));
+    // No-one is going to have more than *nine* sidebars. Even nine is actually
+    // already pretty unrealistic.
+    $words = array('no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine');
+
+    // Wrap this in a isset() just in case someone is stupid enough to have more
+    // than *nine* sidebar regions.
+    if (isset($words[$count])) {
+      $variables['attributes_array']['class'][] = "has-{$words[$count]}-sidebar" . (($count !== 1) ? 's' : '');
+    }
+
+    foreach ($matches as $name) {
+      if (!empty($variables['page'][$name])) {
+        $variables['attributes_array']['class'][] = 'has-' . str_replace('_', '-', $name);
+      }
+    }
+  }
 }
 
 /**
  * Theme callback for rendering an Omega layout.
  */
-function omega_omega_layout($variables) {
-  drupal_process_attached(array('#attached' => $variables['omega_layout']['attached']));
-
+function theme_omega_page_layout($variables) {
   // Clean up the theme hook suggestion so we don't end up in an infinite loop.
   unset($variables['theme_hook_suggestion'], $variables['theme_hook_suggestions']);
-  return theme($variables['omega_layout']['template'], $variables);
+
+  $layout = $variables['omega_layout'];
+  drupal_process_attached(array('#attached' => $layout['attached']));
+  omega_layout_load_theme_assets($layout['name']);
+
+  $hook = str_replace('-', '_', $variables['omega_layout']['template']);
+  return theme($hook, $variables);
 }
 
 /**
  * Shows a notice when Google Chrome Frame is not installed.
  */
-function omega_omega_chrome($variables) {
+function theme_omega_chrome($variables) {
   $message = t('You are using an outdated browser! <a href="!upgrade">Upgrade your browser today</a> or <a href="!install">install Google Chrome Frame</a> to better experience this site.', array(
     '!upgrade' => url('http://browsehappy.com'),
     '!install' => url('http://www.google.com/chromeframe', array(
-      'query' => array('redirect' => 'true')
+      'query' => array('redirect' => 'true'),
     )),
   ));
 

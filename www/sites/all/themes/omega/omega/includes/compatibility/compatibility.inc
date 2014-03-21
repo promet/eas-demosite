@@ -9,7 +9,6 @@
  * Implements hook_extension_EXTENSION_registry_alter().
  */
 function omega_extension_compatibility_theme_registry_alter(&$registry) {
-  $registry['html']['includes'][] = drupal_get_path('theme', 'omega') . '/includes/compatibility/compatibility.inc';
   $registry['html']['preprocess functions'][] = 'omega_extension_compatibility_preprocess_html';
 
   if (omega_theme_get_setting('omega_apple_touch', TRUE)) {
@@ -94,7 +93,7 @@ function omega_extension_compatibility_preprocess_html(&$variables) {
 
     // The minimum-scale and maximum-scale properties are ignored if
     // user-scalable is set to 'no'.
-    if (omega_theme_get_setting('omega_viewport_user_scaleable', TRUE) === FALSE) {
+    if (omega_theme_get_setting('omega_viewport_user_scaleable', TRUE) == FALSE) {
       $content[] = 'user-scalable=no';
     }
     else {
@@ -108,7 +107,10 @@ function omega_extension_compatibility_preprocess_html(&$variables) {
 
     $meta = array(
       '#tag' => 'meta',
-      '#attributes' => array('name' => 'viewport', 'content' => implode(', ', $content)),
+      '#attributes' => array(
+        'name' => 'viewport',
+        'content' => implode(', ', $content),
+      ),
       // The 'viewport' metatag should be rendered after the 'HandheldFriendly'
       // metatag.
       '#weight' => 10,
@@ -123,7 +125,7 @@ function omega_extension_compatibility_preprocess_html(&$variables) {
 
     if (!empty($registry['html']['apple-touch-icon'])) {
       // Iterate over the array of touch icons and attributes.
-      foreach($registry['html']['apple-touch-icon'] as $icon) {
+      foreach ($registry['html']['apple-touch-icon'] as $icon) {
         $meta = array(
           '#tag' => 'link',
           '#attributes' => array(

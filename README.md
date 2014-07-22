@@ -41,6 +41,18 @@ Local
 -----
 This script is intended to create a local installation with a copy of the database and files. Use `mods_enable` in the environment directory to enable only modules needed for local development.
 
+If using default-d7 as template for slaughtering an existing site, be sure to replace the following lines of the local build script:
+
+    echo "Installing database.";
+    $drush si -y --account-pass='drupaladm1n'
+
+with these lines in order import the existing database snapshot:
+
+    echo "Dropping current database";
+    $drush sql-drop -y
+    echo "Re-installing sitename.dev database";
+    $drush sqlc < $env_path/ref_db/sitename_db.sql # replace database file name accordingly.
+
 Dev
 -----
 This script is intended to run on a development or staging environment. Use `mods_purge` in the environment directory to disable modules not needed on development or staging.

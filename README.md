@@ -59,4 +59,4 @@ This script is intended to run on a development or staging environment. Use `mod
 
 Prod
 -----
-This script is intended to run on a production environment. Use `mods_purge` in the environment directory to disbale modules not needed on development or staging.
+This script is intended to run on a production environment. Use `mods_purge` in the environment directory to disable modules not needed on development or staging.

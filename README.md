@@ -3,6 +3,7 @@ default
 
 requirements
 ------------
+* [virtualBox](https://www.virtualbox.org/wiki/Downloads) >= 1.3
 * [vagrant](http://downloads.vagrantup.com/) >= 1.2.0 (1.4.x recommended)
 
 Legacy Note: you no longer need any particular vagrant plugins. The box is

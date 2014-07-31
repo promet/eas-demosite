@@ -11,12 +11,12 @@ already provisioned, so there's no need for a chef run.
 
 Building
 ---
-
+* You need to edit your machine's local host file Add the entry 10.33.36.11 default-d7.dev
 * Run `vagrant up` to build the environment.
 * ssh in with `vagrant ssh`
 * Navigate to `/var/www/sites/PROJECT`.
-* cp `env.json` from `/var/drupal/default/` to next to your `settings.php`.
-* From inside your drupal root, run `../build/drush-build.sh local` and party.
+* cp `env.json` from `/var/drupal/default/` to next to the `settings.php` in the VM.
+* From inside your drupal root on the VM, run `../build/drush-build.sh local` and party.
 
 Use
 ---

@@ -1,0 +1,4 @@
+name = "Default D7"
+description = "Provides a base for starting development on Drupal sites."
+package = "Default D7"
+core = "7.x"

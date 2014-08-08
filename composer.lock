@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "3f8e27aad59277afdd6b45a15e563a82",
+    "hash": "c78bc6596c29a3f233d0b75608f440dc",
     "packages": [
         {
             "name": "composer/composer",
@@ -662,6 +662,35 @@
             "description": "Filter the modules list."
         },
         {
+            "name": "drupal/omega",
+            "version": "7.4.2",
+            "source": {
+                "type": "git",
+                "url": "http://git.drupal.org/project/omega",
+                "reference": "a6c85ed04d103402badc4c1135394eacbd88ec92"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "http://ftp.drupal.org/files/projects/omega-7.x-4.2.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "drupal/drupal": "7.*",
+                "drush/drush": "6.*"
+            },
+            "replace": {
+                "drupal/ohm": "self.version"
+            },
+            "type": "drupal-drush",
+            "extra": {
+                "branch-alias": {
+                    "dev-7.x-4.x": "7.4.x-dev"
+                }
+            },
+            "description": "A powerful HTML5 base theme framework utilizing tools like <a href=\"http://sass-lang.com/\" title=\"Sass\">Sass</a>, <a href=\"http://compass-style.org/\" title=\"Compass\">Compass</a>, <a href=\"http://gruntjs.com/\" title=\"Grunt\">Grunt</a>, <a href=\"http://bower.io/\" title=\"Bower\">Bower</a>, <a href=\"http://rvm.io/\" title=\"Ruby Version Manager\">Ruby Version Manager</a>, <a href=\"http://bundler.io/\" title=\"Bundler\">Bundler</a> and more."
+        },
+        {
             "name": "drupal/panels",
             "version": "7.3.4",
             "source": {
@@ -782,16 +811,16 @@
         },
         {
             "name": "drupal/tangler",
-            "version": "0.1.5",
+            "version": "0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/winmillwill/drupal-tangler.git",
-                "reference": "655067c52190f53a5c0ac6e0477e3da5e361c592"
+                "reference": "ca2a074f000b2662d5ef045beea24f3bedee5bd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/winmillwill/drupal-tangler/zipball/655067c52190f53a5c0ac6e0477e3da5e361c592",
-                "reference": "655067c52190f53a5c0ac6e0477e3da5e361c592",
+                "url": "https://api.github.com/repos/winmillwill/drupal-tangler/zipball/ca2a074f000b2662d5ef045beea24f3bedee5bd6",
+                "reference": "ca2a074f000b2662d5ef045beea24f3bedee5bd6",
                 "shasum": ""
             },
             "require": {
@@ -810,7 +839,7 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
-            "time": "2014-08-01 21:51:01"
+            "time": "2014-08-08 18:23:26"
         },
         {
             "name": "drupal/variable",

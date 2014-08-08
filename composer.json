@@ -21,6 +21,7 @@
         "drupal/feeds": "7.*",
         "drupal/job_scheduler": "7.*",
         "drupal/module_filter": "7.*",
+        "drupal/omega": "7.4.*",
         "drupal/panels": "7.*",
         "drupal/rules": "7.*",
         "drupal/strongarm": "7.*",

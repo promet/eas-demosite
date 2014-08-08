@@ -25,13 +25,13 @@
         "drupal/rules": "7.*",
         "drupal/strongarm": "7.*",
         "drupal/views": "7.*",
-        "drupal/wysiwyg": "7.*"
+        "drupal/wysiwyg": "7.*",
         "drush/drush": "6.*",
-        "winmillwill/settings_compile": "~2.1",
+        "winmillwill/settings_compile": "~2.1"
     },
     "require-dev": {
         "drupal/devel": "7.*"
-    }
+    },
     "scripts": {
         "post-install-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate",

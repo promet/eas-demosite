@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "b4f5ea312fdcb997f7970433b342f409",
+    "hash": "ebd06caab0fa26cc313b3c500170a6d8",
     "packages": [
         {
             "name": "composer/composer",
@@ -243,36 +243,6 @@
                 }
             },
             "description": "Makes date/time fields available."
-        },
-        {
-            "name": "drupal/devel",
-            "version": "7.1.5",
-            "source": {
-                "type": "git",
-                "url": "http://git.drupal.org/project/devel",
-                "reference": "becb6ca3ced27872b941b30ca308da03a209425a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "http://ftp.drupal.org/files/projects/devel-7.x-1.5.zip",
-                "reference": null,
-                "shasum": null
-            },
-            "require": {
-                "drupal/drupal": "7.*",
-                "drupal/menu": "7.*"
-            },
-            "replace": {
-                "drupal/devel_generate": "self.version",
-                "drupal/devel_node_access": "self.version"
-            },
-            "type": "drupal-module",
-            "extra": {
-                "branch-alias": {
-                    "dev-7.x-1.x": "7.1.x-dev"
-                }
-            },
-            "description": "Various blocks, pages, and functions for developers."
         },
         {
             "name": "drupal/diff",
@@ -1427,7 +1397,38 @@
             "time": "2014-07-30 17:44:13"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "drupal/devel",
+            "version": "7.1.5",
+            "source": {
+                "type": "git",
+                "url": "http://git.drupal.org/project/devel",
+                "reference": "becb6ca3ced27872b941b30ca308da03a209425a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "http://ftp.drupal.org/files/projects/devel-7.x-1.5.zip",
+                "reference": null,
+                "shasum": null
+            },
+            "require": {
+                "drupal/drupal": "7.*",
+                "drupal/menu": "7.*"
+            },
+            "replace": {
+                "drupal/devel_generate": "self.version",
+                "drupal/devel_node_access": "self.version"
+            },
+            "type": "drupal-module",
+            "extra": {
+                "branch-alias": {
+                    "dev-7.x-1.x": "7.1.x-dev"
+                }
+            },
+            "description": "Various blocks, pages, and functions for developers."
+        }
+    ],
     "aliases": [],
     "minimum-stability": "alpha",
     "stability-flags": [],

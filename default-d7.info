@@ -2,3 +2,6 @@ name = "Default D7"
 description = "Provides a base for starting development on Drupal sites."
 package = "Default D7"
 core = "7.x"
+
+dependencies[] = "wysiwyg_filtered_profile"
+dependencies[] = "wysiwyg_full_profile"

@@ -9,5 +9,3 @@ module_filter
 rules
 strongarm
 views
-wysiwyg_filtered_profile
-wysiwyg_full_profile

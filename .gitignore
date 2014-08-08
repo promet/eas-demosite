@@ -1,7 +1,6 @@
-# Ignore paths that contain user-generated content.
-*/sites/*/env.json
-*/sites/*/files
-*/sites/*/private
+vendor
+www
+config.yml
 
 # Ignore build files
 build/*/ref_db

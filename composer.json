@@ -36,7 +36,7 @@
     "scripts": {
         "post-install-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate",
-            "vendor/bin/settings_compile config.yml.dist www/sites/default/settings.php"
+            "vendor/bin/settings_compile config.yml www/sites/default/settings.php"
         ],
         "post-update-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate"

@@ -1,0 +1,10 @@
+drupal:
+    settings:
+        db_url: "mysql://root:pass@localhost/default"
+        databases:
+            default:
+                default:
+                    database: default
+                    username: root
+                    password: pass
+                    driver: mysql

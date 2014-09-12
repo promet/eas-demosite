@@ -24,6 +24,7 @@
         "drupal/context": "7.*",
         "drupal/ctools": "7.*",
         "drupal/drop_ship": "1.*",
+        "drupal/drupal-library-installer-plugin": "~0.1",
         "drupal/date": "7.*",
         "drupal/diff": "7.*",
         "drupal/entity": "7.*",
@@ -64,7 +65,7 @@
     "scripts": {
         "post-install-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate",
-            "vendor/bin/settings_compile config.yml www/sites/default/settings.php"
+            "vendor/bin/settings_compile cnf/config.yml www/sites/default/settings.php"
         ],
         "post-update-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate"

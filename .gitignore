@@ -1,15 +1,27 @@
-vendor
+cnf/config.yml
 www
-config.yml
+vendor
+.env
+
+!www/sites/default/README.md
+
+# Ignore paths that contain user-generated content.
+*/sites/*/env.json
+*/sites/*/files
+*/sites/*/private
 
 # Ignore build files
 build/*/ref_db
 build/*/ref_db/*.sql*
-
-*/.DS_Store
-.DS_Store
+build/*/reroute_email
+build/environment
 
 .htaccess
 
 # Ignore Vagrant box
 .vagrant/
+
+.DS_Store
+.bundle
+.ruby-version
+.sass-cache

@@ -33,9 +33,6 @@ function wysiwyg_filtered_profile_wysiwyg_default_profiles() {
           'Subscript' => 1,
           'Source' => 1,
         ),
-        'drupal' => array(
-          'media' => 1,
-        ),
       ),
       'toolbar_loc' => 'top',
       'toolbar_align' => 'left',

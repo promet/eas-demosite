@@ -42,9 +42,6 @@ function wysiwyg_full_profile_wysiwyg_default_profiles() {
           'Table' => 1,
           'Find' => 1,
         ),
-        'drupal' => array(
-          'media' => 1,
-        ),
       ),
       'toolbar_loc' => 'top',
       'toolbar_align' => 'left',

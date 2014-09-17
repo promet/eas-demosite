@@ -65,7 +65,7 @@
     "scripts": {
         "post-install-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate",
-            "vendor/bin/settings_compile cnf/config.yml www/sites/default/settings.php"
+            "bin/wrapper"
         ],
         "post-update-cmd": [
             "Drupal\\Tangler\\ScriptHandler::postUpdate"

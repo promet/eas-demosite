@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bd1afb2e49bfa42f4709aadac4d7e7b1",
+    "hash": "d445acd2a139f999f246daa7886ebaff",
     "packages": [
         {
             "name": "ckeditor/ckeditor",
@@ -1536,16 +1536,16 @@
         },
         {
             "name": "winmillwill/settings_compile",
-            "version": "2.1.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/winmillwill/settings_compile.git",
-                "reference": "c186f6d3bcd892b994f53d5e5bb1f9dad652e96c"
+                "reference": "7d9cb53cf70390ab3272e243c1383a3e1a436b2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/winmillwill/settings_compile/zipball/c186f6d3bcd892b994f53d5e5bb1f9dad652e96c",
-                "reference": "c186f6d3bcd892b994f53d5e5bb1f9dad652e96c",
+                "url": "https://api.github.com/repos/winmillwill/settings_compile/zipball/7d9cb53cf70390ab3272e243c1383a3e1a436b2a",
+                "reference": "7d9cb53cf70390ab3272e243c1383a3e1a436b2a",
                 "shasum": ""
             },
             "require": {
@@ -1571,7 +1571,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2014-07-30 17:44:13"
+            "time": "2014-06-22 21:29:15"
         }
     ],
     "packages-dev": [

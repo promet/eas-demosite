@@ -42,7 +42,7 @@
         "drupal/views": "7.*",
         "drupal/wysiwyg": "7.*",
         "drush/drush": "6.*",
-        "winmillwill/settings_compile": "~2.1"
+        "winmillwill/settings_compile": "~2.0.0"
     },
     "require-dev": {
         "drupal/devel": "7.*",
@@ -64,11 +64,11 @@
     },
     "scripts": {
         "post-install-cmd": [
-            "Drupal\\Tangler\\ScriptHandler::postUpdate",
-            "bin/wrapper"
+            "bin/wrapper",
+            "vendor/bin/drupal_tangle"
         ],
         "post-update-cmd": [
-            "Drupal\\Tangler\\ScriptHandler::postUpdate"
+            "vendor/bin/drupal_tangle"
         ]
     },
     "type": "project"

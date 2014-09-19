@@ -1,14 +1,21 @@
 #!/bin/bash
 set -e
 path=$(dirname "$0")
-base=$PWD/$path/..
+base=$(cd $PWD/$path/.. && pwd)
 drush_flags='-y'
 # Pass all arguments to drush
 while [ $# -gt 0 ]; do
   drush_flags="$drush_flags $1"
   shift
 done
-drush="drush $drush_flags"
+drush="$base/vendor/bin/drush.php $drush_flags"
+
+if [[ -f .env ]]; then 
+  source .env
+else
+  echo "No env file found. Please create one. You can use env.dist as an example."
+  exit 1
+fi
 
 pushd $base/www
 

@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "661e1e971aa8e590a94018f55a400f04",
+    "hash": "d445acd2a139f999f246daa7886ebaff",
     "packages": [
         {
             "name": "ckeditor/ckeditor",
@@ -1536,16 +1536,16 @@
         },
         {
             "name": "winmillwill/settings_compile",
-            "version": "2.1.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/winmillwill/settings_compile.git",
-                "reference": "c186f6d3bcd892b994f53d5e5bb1f9dad652e96c"
+                "reference": "7d9cb53cf70390ab3272e243c1383a3e1a436b2a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/winmillwill/settings_compile/zipball/c186f6d3bcd892b994f53d5e5bb1f9dad652e96c",
-                "reference": "c186f6d3bcd892b994f53d5e5bb1f9dad652e96c",
+                "url": "https://api.github.com/repos/winmillwill/settings_compile/zipball/7d9cb53cf70390ab3272e243c1383a3e1a436b2a",
+                "reference": "7d9cb53cf70390ab3272e243c1383a3e1a436b2a",
                 "shasum": ""
             },
             "require": {
@@ -1571,7 +1571,7 @@
                     "email": "wa.milton@gmail.com"
                 }
             ],
-            "time": "2014-07-30 17:44:13"
+            "time": "2014-06-22 21:29:15"
         }
     ],
     "packages-dev": [
@@ -2775,16 +2775,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.2.5",
+            "version": "4.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c3abe5953d1e60a0bf23012b1bc8c4d07f4832d7"
+                "reference": "c28a790620fe30b049bb693be1ef9cd4e0fe906c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c3abe5953d1e60a0bf23012b1bc8c4d07f4832d7",
-                "reference": "c3abe5953d1e60a0bf23012b1bc8c4d07f4832d7",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c28a790620fe30b049bb693be1ef9cd4e0fe906c",
+                "reference": "c28a790620fe30b049bb693be1ef9cd4e0fe906c",
                 "shasum": ""
             },
             "require": {
@@ -2845,7 +2845,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2014-09-06 18:38:27"
+            "time": "2014-09-14 09:31:24"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -3499,13 +3499,19 @@
             "time": "2014-09-03 09:00:14"
         }
     ],
-    "aliases": [],
+    "aliases": [
+
+    ],
     "minimum-stability": "alpha",
     "stability-flags": {
         "composer/composer": 15,
         "drupal/devel_themer": 20
     },
     "prefer-stable": false,
-    "platform": [],
-    "platform-dev": []
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
 }

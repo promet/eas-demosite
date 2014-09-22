@@ -9,8 +9,9 @@ already provisioned, so there's no need for a chef run.
 
 ### Getting Started
 
-* You need to edit your machine's local host file. Add the entry 110.33.36.11 default-d7.dev
+* You need to edit your machine's local host file. Add the entry 10.33.36.11 default-d7.dev
 * Make a copy of cnf/config.yml.dist: `cp cnf/config.yml.dist cnf/config.yml`
+* Make a copy of env.dist: `cp env.dist .env`
 * Run `vagrant up --provision` to build the environment.
 * ssh in with `vagrant ssh`
 * Navigate to `/var/www/sites/PROJECT`.
@@ -21,8 +22,8 @@ already provisioned, so there's no need for a chef run.
 #### Environment Variables
 
 Environment variables are used to configure tunables. These are spelled out in
-`env.dist` and the provision step for Vagrant will load the variables from there
-unless you create a `.env` file to override those values.
+`env.dist` and the provision step for Vagrant requires there be a `.env` file
+to override those values.
 
 *IMPORTANT*
 

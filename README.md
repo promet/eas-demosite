@@ -10,7 +10,7 @@ already provisioned, so there's no need for a chef run.
 ### Getting Started
 
 * You need to edit your machine's local host file. Add the entry 110.33.36.11 default-d7.dev
-* Make a copy of cnf/config.dist.yml: `cp cnf/config.dist.yml cnf/config.yml`
+* Make a copy of cnf/config.yml.dist: `cp cnf/config.yml.dist cnf/config.yml`
 * Run `vagrant up --provision` to build the environment.
 * ssh in with `vagrant ssh`
 * Navigate to `/var/www/sites/PROJECT`.

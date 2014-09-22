@@ -5,9 +5,10 @@ drupal:
             default:
                 default:
                     database: default
-                    username: root
-                    password: pass
+                    username: default
+                    password: default
                     driver: mysql
+                    host: localhost
     ini: {}
     include:
         require_once: ["vendor/autoload.php"]

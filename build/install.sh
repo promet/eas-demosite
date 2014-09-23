@@ -19,6 +19,7 @@ fi
 
 pushd $base/www
 
+echo "Installing Drupal minimal profile.";
 $drush si minimal --account-name=admin --account-pass=drupaladm1n
 echo "Enabling modules";
 $drush en $(cat $base/build/mods_enabled | tr '\n' ' ')

@@ -11,4 +11,4 @@ drupal:
                     host: localhost
     ini: {}
     include:
-        require_once: ["vendor/autoload.php"]
+        require_once: ["$DRUPAL_ROOT/sites/default/vendor/autoload.php"]

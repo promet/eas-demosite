@@ -5,7 +5,7 @@ drupal:
             default:
                 default:
                     database: testDB
-                    username: testDBA 
+                    username: testDBA
                     password: testPASS
                     driver: mysql
                     host: localhost

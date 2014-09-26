@@ -4,9 +4,9 @@ drupal:
         databases:
             default:
                 default:
-                    database: default
-                    username: default
-                    password: default
+                    database: testDB
+                    username: testDBA 
+                    password: testPASS
                     driver: mysql
                     host: localhost
     ini: {}
